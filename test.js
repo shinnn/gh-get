@@ -6,7 +6,7 @@ const test = require('tape');
 process.env.GITHUB_TOKEN = '';
 
 test('ghGet()', t => {
-  t.plan(10);
+  t.plan(12);
 
   t.equal(ghGet.name, 'ghGet', 'should have a function name.');
 
@@ -89,6 +89,32 @@ test('ghGet()', t => {
       err.message,
       '1 is not a Boolean value. `verbose` option must be a Boolean value. (`false` by default)',
       'should fail when `verbose` option is not a Boolean value.'
+    );
+  }).catch(t.fail);
+
+  ghGet('users/isaacs', {
+    headers: {
+      'User-Agent': 'https://github.com/shinnn/gh-get'
+    },
+    token: 1
+  }).then(t.fail, err => {
+    t.strictEqual(
+      err.name,
+      'TypeError',
+      'should fail when `token` option is not a string.'
+    );
+  }).catch(t.fail);
+
+  ghGet('users/isaacs', {
+    headers: {
+      'User-Agent': 'https://github.com/shinnn/gh-get'
+    },
+    baseUrl: 1
+  }).then(t.fail, err => {
+    t.strictEqual(
+      err.name,
+      'TypeError',
+      'should fail when `baseUrl` option is not a string.'
     );
   }).catch(t.fail);
 });

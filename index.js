@@ -36,7 +36,7 @@ module.exports = function ghGet(apiUrlPath, options) {
     ));
   }
 
-  return fettucine(apiUrlPath, ghifyRequestOptions(options))
+  return new Promise(resolve => resolve(fettucine(apiUrlPath, ghifyRequestOptions(options))))
   .then(function checkGithubApiResponseStatusCode(response) {
     if (response.statusCode < 200 || 299 < response.statusCode) {
       const error = new Error(
