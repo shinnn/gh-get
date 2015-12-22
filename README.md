@@ -40,11 +40,11 @@ const ghGet = require('gh-get');
 *options*: `Object`  
 Return: `Object` ([`Promise`](https://promisesaplus.com/) instance)
 
-It makes a `GET` request to the [Github API](https://developer.github.com/v3/#overview). Request method is overridable with the `method` [option](https://github.com/shinnn/gh-get#options).
+It makes a `GET` request to the [Github API](https://developer.github.com/v3/#overview) and returns a promise. Request method is overridable with the `method` [option](https://github.com/shinnn/gh-get#options).
 
-When the API request finishes successfully, it will be [*fulfilled*](https://promisesaplus.com/#point-26) with the  [`http.IncomingMessage`](https://nodejs.org/api/http.html#http_http_incomingmessage) object with the additional `body` property that contains a JSON object of the API response.
+When the API request finishes successfully, the promise will be [*fulfilled*](https://promisesaplus.com/#point-26) with the  [`http.IncomingMessage`](https://nodejs.org/api/http.html#http_http_incomingmessage) object with the additional `body` property that contains a JSON object of the API response.
 
-When the API request fails, it will be [*rejected*](https://promisesaplus.com/#point-30) with an error object.
+When the API request fails, the promise will be [*rejected*](https://promisesaplus.com/#point-30) with an error object.
 
 #### Options
 
