@@ -1,6 +1,6 @@
 {
   "name": "gh-get",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Create a request to the Github API",
   "repository": "shinnn/gh-get",
   "author": "Shinnosuke Watanabe (https://github.com/shinnn)",
