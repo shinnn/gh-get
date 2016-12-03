@@ -1,4 +1,4 @@
-'use strong';
+'use strict';
 
 const ghGet = require('.');
 const test = require('tape');
