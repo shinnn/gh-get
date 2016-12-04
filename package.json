@@ -5,7 +5,7 @@
   "repository": "shinnn/gh-get",
   "author": "Shinnosuke Watanabe (https://github.com/shinnn)",
   "scripts": {
-    "pretest": "eslint --config @shinnn/node index.js test.js",
+    "pretest": "eslint --format=codeframe index.js test.js",
     "test": "node --throw-deprecation --track-heap-objects test.js",
     "coverage": "istanbul cover test.js"
   },
@@ -38,9 +38,12 @@
     "ghify-request-options": "^1.0.0"
   },
   "devDependencies": {
-    "@shinnn/eslint-config-node": "^2.0.0",
-    "eslint": "^2.2.0",
-    "istanbul": "^0.4.2",
-    "tape": "^4.4.0"
+    "@shinnn/eslint-config-node": "^3.0.0",
+    "eslint": "^3.11.1",
+    "istanbul": "^0.4.5",
+    "tape": "^4.6.3"
+  },
+  "eslintConfig": {
+    "extends": "@shinnn/node"
   }
 }
