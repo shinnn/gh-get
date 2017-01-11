@@ -4,15 +4,17 @@
 */
 'use strict';
 
+const inspect = require('util').inspect;
+
 const fettucine = require('fettuccine');
 const ghifyRequestOptions = require('ghify-request-options');
 
-module.exports = function ghGet(apiUrlPath, options) {
-  if (typeof apiUrlPath !== 'string') {
+module.exports = function ghGet(url, options) {
+  if (typeof url !== 'string') {
     return Promise.reject(new TypeError(
-      String(apiUrlPath) +
-      ' is not a string. Expected a "path" part of a Github API endpoint URL, for example' +
-      ' https://api.github.com/user/repos -> \'user/repos\'.'
+      inspect(url) +
+      ' is not a string. Expected a "path" part of a Github API URL, for example \'user/repos\'' +
+      ' if the request URL is https://api.github.com/user/repos.'
     ));
   }
 
@@ -30,13 +32,13 @@ module.exports = function ghGet(apiUrlPath, options) {
 
   if (options.verbose !== undefined && typeof options.verbose !== 'boolean') {
     return Promise.reject(new TypeError(
-      String(options.verbose) +
+      inspect(options.verbose) +
       ' is not a Boolean value. `verbose` option must be a Boolean value.' +
       ' (`false` by default)'
     ));
   }
 
-  return new Promise(resolve => resolve(fettucine(apiUrlPath, ghifyRequestOptions(options))))
+  return new Promise(resolve => resolve(fettucine(url, ghifyRequestOptions(options))))
   .then(function checkGithubApiResponseStatusCode(response) {
     if (response.statusCode < 200 || 299 < response.statusCode) {
       const error = new Error(

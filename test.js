@@ -8,15 +8,15 @@ process.env.GITHUB_TOKEN = '';
 test('ghGet()', t => {
   t.plan(12);
 
-  t.equal(ghGet.name, 'ghGet', 'should have a function name.');
+  t.strictEqual(ghGet.name, 'ghGet', 'should have a function name.');
 
   ghGet('users/isaacs', {
     headers: {
       'UseR-AgenT': 'Shinnosuke Watanabe https://github.com/shinnn/gh-get'
     },
     token: process.env.TOKEN_FOR_TEST
-  }).then(response => {
-    t.strictEqual(response.body.login, 'isaacs', 'should create an API request.');
+  }).then(({body}) => {
+    t.strictEqual(body.login, 'isaacs', 'should create an API request.');
   }).catch(t.fail);
 
   ghGet('foo123', {
@@ -24,12 +24,8 @@ test('ghGet()', t => {
       'USeR-aGenT': 'github:shinnn https://github.com/shinnn/gh-get'
     },
     token: process.env.TOKEN_FOR_TEST
-  }).then(t.fail, err => {
-    t.strictEqual(
-      err.message,
-      '404 Not Found',
-      'should fail when the endpoint is not found.'
-    );
+  }).then(t.fail, ({message}) => {
+    t.strictEqual(message, '404 Not Found', 'should fail when the endpoint is not found.');
   }).catch(t.fail);
 
   ghGet('user', {
@@ -38,36 +34,36 @@ test('ghGet()', t => {
     },
     token: 'invalid_token',
     verbose: true
-  }).then(t.fail, err => {
+  }).then(t.fail, ({message, response}) => {
     t.strictEqual(
-      err.message,
+      message,
       '401 Unauthorized (Bad credentials)',
       'should fail when it takes an invalid `token` option.'
     );
     t.strictEqual(
-      err.response.req._headers['user-agent'],  // eslint-disable-line
+      response.req._headers['user-agent'],  // eslint-disable-line
       '@shinnn https://github.com/shinnn/gh-get',
-      'should add `response` property to the error when `verbose` option is enabled.'
+      'should add `.response` to the error when `verbose` option is enabled.'
     );
   }).catch(t.fail);
 
-  ghGet().then(t.fail, err => {
+  ghGet().then(t.fail, ({message}) => {
     t.ok(
-      err.message.endsWith(' for example https://api.github.com/user/repos -> \'user/repos\'.'),
+      message.endsWith(' for example \'user/repos\' if the request URL is https://api.github.com/user/repos.'),
       'should fail when it takes no arguments.'
     );
   }).catch(t.fail);
 
-  ghGet(1).then(t.fail, err => {
+  ghGet(Buffer.from([])).then(t.fail, ({message}) => {
     t.ok(
-      err.message.startsWith('1 is not a string. Expected a "path" part of a Github API endpoint URL, '),
+      message.startsWith('<Buffer > is not a string. Expected a "path" part of a Github API URL, '),
       'should fail when the first argument is not a string.'
     );
   }).catch(t.fail);
 
-  ghGet('users/isaacs').then(t.fail, err => {
+  ghGet('users/isaacs').then(t.fail, ({message}) => {
     t.ok(
-      err.message.includes('`headers` option with a valid `user-agent` header is required'),
+      message.includes('`headers` option with a valid `user-agent` header is required'),
       'should fail when it doesn\'t take the seond argument.'
     );
   }).catch(t.fail);
@@ -83,11 +79,11 @@ test('ghGet()', t => {
     headers: {
       'UseR-AgenT': 'https://github.com/shinnn/gh-get'
     },
-    verbose: 1
-  }).then(t.fail, err => {
+    verbose: String.fromCharCode(20)
+  }).then(t.fail, ({message}) => {
     t.strictEqual(
-      err.message,
-      '1 is not a Boolean value. `verbose` option must be a Boolean value. (`false` by default)',
+      message,
+      '\'\\u0014\' is not a Boolean value. `verbose` option must be a Boolean value. (`false` by default)',
       'should fail when `verbose` option is not a Boolean value.'
     );
   }).catch(t.fail);
@@ -97,12 +93,8 @@ test('ghGet()', t => {
       'User-Agent': 'https://github.com/shinnn/gh-get'
     },
     token: 1
-  }).then(t.fail, err => {
-    t.strictEqual(
-      err.name,
-      'TypeError',
-      'should fail when `token` option is not a string.'
-    );
+  }).then(t.fail, ({name}) => {
+    t.strictEqual(name, 'TypeError', 'should fail when `token` option is not a string.');
   }).catch(t.fail);
 
   ghGet('users/isaacs', {
@@ -110,11 +102,7 @@ test('ghGet()', t => {
       'User-Agent': 'https://github.com/shinnn/gh-get'
     },
     baseUrl: 1
-  }).then(t.fail, err => {
-    t.strictEqual(
-      err.name,
-      'TypeError',
-      'should fail when `baseUrl` option is not a string.'
-    );
+  }).then(t.fail, ({name}) => {
+    t.strictEqual(name, 'TypeError', 'should fail when `baseUrl` option is not a string.');
   }).catch(t.fail);
 });
