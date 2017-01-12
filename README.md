@@ -6,16 +6,12 @@
 [![Dependency Status](https://david-dm.org/shinnn/gh-get.svg)](https://david-dm.org/shinnn/gh-get)
 [![devDependency Status](https://david-dm.org/shinnn/gh-get/dev-status.svg)](https://david-dm.org/shinnn/gh-get#info=devDependencies)
 
-A [Node](https://nodejs.org/) module to create a request to the [Github API](https://developer.github.com/v3/)
+A [Node.js](https://nodejs.org/) module to create a request to the [Github API](https://developer.github.com/v3/)
 
 ```javascript
 const ghGet = require('gh-get');
 
-ghGet('users/isaacs', {
-  headers: {
-    'user-agent': 'your application name'
-  }
-}).then(response => {
+ghGet('users/isaacs', {userAgent: 'your application name'}).then(response => {
   response.body.login; //=> 'isaacs'
 });
 ```
@@ -38,19 +34,21 @@ const ghGet = require('gh-get');
 
 *url*: `String` ("path" part of a Github API URL)  
 *options*: `Object`  
-Return: `Object` ([`Promise`](https://promisesaplus.com/) instance)
+Return: [`Promise`](https://promisesaplus.com/)
 
 It makes a `GET` request to the [Github API](https://developer.github.com/v3/#overview) and returns a promise. Request method is overridable with the `method` [option](https://github.com/shinnn/gh-get#options).
 
 When the API request finishes successfully, the promise will be [*fulfilled*](https://promisesaplus.com/#point-26) with the  [`http.IncomingMessage`](https://nodejs.org/api/http.html#http_http_incomingmessage) object with the additional `body` property that contains a JSON object of the API response.
 
-When the API request fails, the promise will be [*rejected*](https://promisesaplus.com/#point-30) with an error object.
-
 #### Options
 
-You can use [`Request` options](https://github.com/request/request#requestoptions-callback) and [the](https://github.com/shinnn/gh-get#optionstoken) [additional](https://github.com/shinnn/gh-get#optionsverbose) [ones](https://github.com/shinnn/gh-get#optionsbaseurl).
+You can use [`Request` options](https://github.com/request/request#requestoptions-callback) and the following.
 
-Note that `headers['user-agent']` option is [required](https://developer.github.com/v3/#user-agent-required).
+##### options.userAgent
+
+Type: `String` (GitHub username or the name of your application)  
+
+[Required](https://developer.github.com/v3/#user-agent-required). Add `user-agent` to the request header.
 
 ##### options.token
 
@@ -62,9 +60,7 @@ Use specific [GitHub access token](https://github.com/blog/1509-personal-api-tok
 ```javascript
 ghGet('user', {
   token: 'xxxxx' //=> for example @shinnn's access token
-  headers: {
-    'user-agent': 'Shinnosuke Watanabe https://github.com/shinnn/'
-  },
+  userAgent: 'Shinnosuke Watanabe https://github.com/shinnn/'
 }).then(response => {
   response.body.login; //=> 'shinnn'
 });

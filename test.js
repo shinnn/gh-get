@@ -1,12 +1,13 @@
 'use strict';
 
 const ghGet = require('.');
+const pickBy = require('lodash/pickBy');
 const test = require('tape');
 
 process.env.GITHUB_TOKEN = '';
 
 test('ghGet()', t => {
-  t.plan(12);
+  t.plan(16);
 
   t.strictEqual(ghGet.name, 'ghGet', 'should have a function name.');
 
@@ -17,6 +18,22 @@ test('ghGet()', t => {
     token: process.env.TOKEN_FOR_TEST
   }).then(({body}) => {
     t.strictEqual(body.login, 'isaacs', 'should create an API request.');
+  }).catch(t.fail);
+
+  ghGet('rate_limit', {
+    userAgent: 'Shinnosuke Watanabe https://github.com/shinnn/gh-get',
+    jsonReviver: (key, value) => typeof value === 'number' ? Math.PI : value
+  }).then(({body, request}) => {
+    t.deepEqual(
+      pickBy(request.headers, (value, key) => /^user-agent$/i.test(key)),
+      {'user-agent': 'Shinnosuke Watanabe https://github.com/shinnn/gh-get'},
+      'should add user-agent header via `userAgent` option.'
+    );
+    t.strictEqual(
+      body.resources.core.limit,
+      Math.PI,
+      'should support Request options.'
+    );
   }).catch(t.fail);
 
   ghGet('foo123', {
@@ -63,15 +80,35 @@ test('ghGet()', t => {
 
   ghGet('users/isaacs').then(t.fail, ({message}) => {
     t.ok(
-      message.includes('`headers` option with a valid `user-agent` header is required'),
+      message.startsWith('`userAgent` option (string) is required, '),
       'should fail when it doesn\'t take the seond argument.'
     );
   }).catch(t.fail);
 
-  ghGet('users/isaacs', {}).then(t.fail, err => {
+  ghGet('users/isaacs', {
+    headers: {
+      'usr-agent': '@shinnn https://github.com/shinnn/gh-get'
+    }
+  }).then(t.fail, ({message}) => {
     t.ok(
-      err.message.includes('you must tell your username or application name to Github every API request. '),
+      message.includes('you must tell your username or application name to Github every API request. '),
       'should fail when no user agent is specified.'
+    );
+  }).catch(t.fail);
+
+  ghGet('users/isaacs', {userAgent: new Set()}).then(t.fail, ({message}) => {
+    t.strictEqual(
+      message,
+      'Expected `userAgent` option to be a string of valid `user-agent` header, but got Set {}.',
+      'should fail when `userAgent` option is not a string.'
+    );
+  }).catch(t.fail);
+
+  ghGet('users/isaacs', {userAgent: ''}).then(t.fail, ({message}) => {
+    t.strictEqual(
+      message,
+      'Expected `userAgent` option to be a string of valid `user-agent` header, but got \'\' (empty string).',
+      'should fail when `userAgent` option is an empty string.'
     );
   }).catch(t.fail);
 

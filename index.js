@@ -9,6 +9,8 @@ const inspect = require('util').inspect;
 const fettucine = require('fettuccine');
 const ghifyRequestOptions = require('ghify-request-options');
 
+const UA_ERROR = 'Expected `userAgent` option to be a string of valid `user-agent` header';
+
 module.exports = function ghGet(url, options) {
   if (typeof url !== 'string') {
     return Promise.reject(new TypeError(
@@ -18,16 +20,29 @@ module.exports = function ghGet(url, options) {
     ));
   }
 
-  if (
-    !options ||
-    !options.headers ||
-    !Object.keys(options.headers).some(key => /^user-agent$/i.test(key) && options.headers[key])
-  ) {
+  if (!options || (
+    !('userAgent' in options) && (
+      !options.headers ||
+      !Object.keys(options.headers).some(key => /^user-agent$/i.test(key) && options.headers[key])
+    )
+  )) {
     return Promise.reject(new TypeError(
-      '`headers` option with a valid `user-agent` header is required,' +
+      '`userAgent` option (string) is required,' +
       ' because you must tell your username or application name to Github every API request.' +
       ' https://developer.github.com/v3/#user-agent-required'
     ));
+  }
+
+  if (options.userAgent !== undefined) {
+    if (typeof options.userAgent !== 'string') {
+      return Promise.reject(new TypeError(`${UA_ERROR}, but got ${inspect(options.userAgent)}.`));
+    }
+
+    if (options.userAgent.length === 0) {
+      return Promise.reject(new Error(`${UA_ERROR}, but got '' (empty string).`));
+    }
+
+    options.headers = Object.assign({}, options.headers, {'user-agent': options.userAgent});
   }
 
   if (options.verbose !== undefined && typeof options.verbose !== 'boolean') {
@@ -57,6 +72,6 @@ module.exports = function ghGet(url, options) {
       return Promise.reject(error);
     }
 
-    return Promise.resolve(response);
+    return response;
   });
 };
